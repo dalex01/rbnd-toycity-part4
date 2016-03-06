@@ -4,18 +4,17 @@ require 'csv'
 
 class Udacidata
 
-  @@objects = []
-  @@id = 0
   @@data_path = File.dirname(__FILE__) + "/../data/data.csv"
 
   def self.all
-    # Product.all should return an array of Product objects representing all the data in the database.
 
-    # Product.all
-    # #=> [#<Product:0x007fe4853e06e0 @id=0, @brand="Lego", @name="Sleek Wool Bottle", @price="81.87">,
-    # #<Product:0x007fe4853e0640 @id=1, @brand="Hasbro", @name="Sleek Wool Bottle", @price="81.54">,
-    # #<Product:0x007fe4853e05a0 @id=2, @brand="Crayola", @name="Durable Concrete Bag", @price="45.35">,
-    # ...]
+    objects = []
+    database = CSV.read(@@data_path)
+    database.shift
+    database.each do |row|
+      objects << self.new(id: row[0], brand: row[1], name: row[2], price: row[3])
+    end
+    objects
   end
 
   def self.create(attributes = nil)
@@ -24,12 +23,8 @@ class Udacidata
     item = self.new(**attributes)
 
     # save the data in the database
-    if !@@objects.include?(item)
-      @@id += 1
-      @@objects << item
-      CSV.open(@@data_path, "ab") do |csv|
-        csv << [item.id.to_s, item.brand.to_s, item.name.to_s, item.price.to_s]
-      end
+    CSV.open(@@data_path, "ab") do |csv|
+      csv << [item.id.to_s, item.brand.to_s, item.name.to_s, item.price.to_s]
     end
 
     # return the object

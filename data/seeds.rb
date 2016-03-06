@@ -18,13 +18,12 @@ def db_seed
 
   products = []
   10.times do |id|
-    # you will write the "create" method as part of your project
     brand = Faker::Company.name
-    product = Faker::Commerce.product_name
+    product = Faker::Lorem.word
     price = Faker::Commerce.price
-    products.push(Product.create(brand: brand, product: product, price: price))
-    CSV.open(data_path, "ab") do |csv|
-      csv << [id+1, brand.to_s, product.to_s, price.to_s]
-    end
+    products.push(Product.create(brand: brand, name: product, price: price))
+    #CSV.open(data_path, "ab") do |csv|
+    #  csv << [id+1, brand.to_s, product.to_s, price.to_s]
+    #end
   end
 end
