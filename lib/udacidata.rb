@@ -7,7 +7,6 @@ class Udacidata
   @@data_path = File.dirname(__FILE__) + "/../data/data.csv"
 
   def self.all
-
     objects = []
     database = CSV.read(@@data_path)
     database.shift
@@ -18,42 +17,44 @@ class Udacidata
   end
 
   def self.create(attributes = nil)
-
     # create the object
     item = self.new(**attributes)
 
-    # save the data in the database
-    CSV.open(@@data_path, "ab") do |csv|
-      csv << [item.id.to_s, item.brand.to_s, item.name.to_s, item.price.to_s]
-    end
+    # It is strange that according to course we should add product to DB only if it is not exist in it
+    # But according to test we add product to DB in any case
+    # I assume that products are the same if their brand, name and price are identical.
+
+    # save the data in the database if it is not exist in it yet
+
+    #exist = false
+    #database = CSV.read(@@data_path)
+    #database.shift
+    #database.each do |row|
+    #  if row[1] == attributes[:brand].to_s && row[2] == attributes[:name].to_s && row[3] == attributes[:price].to_s
+    #    exist = true
+    #  end
+    #end
+
+    #if !exist
+      CSV.open(@@data_path, "ab") do |csv|
+        csv << [item.id.to_s, item.brand.to_s, item.name.to_s, item.price.to_s]
+      end
+    #end
 
     # return the object
     item
-
   end
 
-  def self.first(n)
-    # Product.first should return a Product object that represents the first product in the database.
-    # Product.first(n) will return an array of Product objects for the first n products in the database.
-
-    # Product.first
-    # #=> #<Product:0x007fdf90ba9e20>
-
-    # Product.first(2)
-    # #=> [#<Product:0x007f8a91a2c9c0 @id=0, @brand="Fisher-Price", @name="Gorgeous Plastic Bag", @price="44.99">,
-    # #<Product:0x007f8a91a2c920 @id=1, @brand="Nintendo", @name="Lightweight Iron Clock", @price="37.36">]
+  def self.first(n=1)
+    objects = self.all
+    return objects[0] if n == 1
+    return objects.first(n)
   end
 
-  def self.last(n)
-    # Product.last should return a Product object that represents the last product in the database.
-    # Product.last(n) will return an array of Product objects for the last n products in the database.
-
-    # Product.last
-    # #=> #<Product:0x007f807da70508>
-
-    # Product.last(2)
-    # #=> [#<Product:0x007f93cb2e8798 @id=98, @brand="Nintendo", @name="Fantastic Aluminum Shoes", @price="43.05">,
-    # #<Product:0x007f93cb2e86f8 @id=99, @brand="Crayola", @name="Awesome Leather Chair", @price="24.73">]
+  def self.last(n=1)
+    objects = self.all
+    return objects[-1] if n == 1
+    return objects.last(n)
   end
 
   def self.destroy
@@ -101,4 +102,5 @@ class Udacidata
     # Product.find(5).update(brand: "Udacity")
     # #=> #<Product:0x007fbff1a44558>
   end
+
 end
