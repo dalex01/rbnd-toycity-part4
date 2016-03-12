@@ -24,8 +24,7 @@ class Udacidata
     # But according to test we add product to DB in any case
     # I assume that products are the same if their brand, name and price are identical.
 
-    # save the data in the database if it is not exist in it yet
-
+    # save the data in the database if it is not exist in it yet (commented due to note above)
     #exist = false
     #database = CSV.read(@@data_path)
     #database.shift
@@ -36,9 +35,7 @@ class Udacidata
     #end
 
     #if !exist
-      CSV.open(@@data_path, "ab") do |csv|
-        csv << [item.id.to_s, item.brand.to_s, item.name.to_s, item.price.to_s]
-      end
+      add_to_database(item)
     #end
 
     # return the object
@@ -57,50 +54,52 @@ class Udacidata
     return objects.last(n)
   end
 
-  def self.destroy
-    # Product.destroy should delete the product corresponding to the given id from the database, and return a Product object
-    # for the product that was deleted.
-
-    # # Remove the product with id 7 from the database
-    # Product.destroy(7)
-    # #=> #<Product:0x007f8a421a0d50>
+  def self.destroy(id)
+    objects = self.all
+    object_to_destroy = nil
+    objects.each {|object| object_to_destroy = objects.delete(object) if object.id == id}
+    raise ProductNotFoundError::IdDoesNotExist, "The product can’t be destroyed because ID #{id} does not exist" if object_to_destroy == nil
+    save_database_header
+    objects.each {|object| add_to_database(object)}
+    object_to_destroy
   end
 
-  def self.find
-    # Product.find should return a Product object for the product with a given product id.
-
-    # Product.find(1)
-    # #=> #<Product:0x007fdd029987c0>
+  def self.find(id)
+    objects = self.all
+    objects.each {|object| return object if object.id == id}
+    raise ProductNotFoundError::NoSuchProduct, "The product ID #{id} can’t be found"
   end
 
-  def self.find_by_#{attribute}
-    # Product.find_by_#{attribute}:
-    # The methods Product.find_by_brand and Product.find_by_name should return a Product object
-    # for the first product in the database that has a matching brand or product name.
-
-    # Note: Use metaprogramming techniques to define these methods. There are hints to help you get started in find_by.rb.
-
-    # Product.find_by_brand("Lego")
-    # #=> #<Product:0x007f97e218cd70>
-
-    # Product.find_by_name("Awesome Toy")
-    # #=> #<Product:0x007f97e21790b8>
+  def self.where(opts={})
+    objects = self.all
+    found_objects = []
+    if opts[:brand]
+      objects.each {|object| found_objects.push(object) if object.brand.to_s == opts[:brand]}
+    elsif opts[:name]
+      objects.each {|object| found_objects.push(object) if object.name.to_s == opts[:name]}
+    end
+    return found_objects
   end
 
-  def self.where
-    # Product.where should return an array of Product objects that match a given brand or product name.
-
-    # Product.where(brand: "Lego")
-    # #=> [#<Product:0x007fa16227c300 @id=5, @brand="Lego", @name="Sleek Plastic Keyboard", @price="22.28">,
-    # #<Product:0x007fa16227c260 @id=6, @brand="Lego", @name="Rustic Paper Hat", @price="85.26">]
+  def update(opts={})
+    # Take it from Rails instance_values method: http://apidock.com/rails/Object/instance_values
+    object_variables = self.instance_variables.map { |name| [name[1..-1].to_sym, instance_variable_get(name)] }
+    Product.destroy(self.id)
+    new_attributes = {}
+    object_variables.each {|key, value| new_attributes[key] = opts.has_key?(key) ? opts[key] : value}
+    Product.create(new_attributes)
   end
 
-  def update
-    # product_instance.update should change the information for a given Product object, and save the new data to the database.
+  def self.save_database_header
+    CSV.open(@@data_path, "wb") do |csv|
+      csv << ["id", "brand", "product", "price"]
+    end
+  end
 
-    # # Get product with id 5, change its brand to "Udacity"
-    # Product.find(5).update(brand: "Udacity")
-    # #=> #<Product:0x007fbff1a44558>
+  def self.add_to_database(item)
+    CSV.open(@@data_path, "ab") do |csv|
+      csv << [item.id.to_s, item.brand.to_s, item.name.to_s, item.price.to_s]
+    end
   end
 
 end

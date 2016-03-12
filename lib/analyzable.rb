@@ -1,46 +1,40 @@
 module Analyzable
 
-	def count_by_brand
-		# count_by_brand should accept an array of Product objects and return a hash with inventory counts, organized by brand.
-
-		# Analyzable::count_by_brand(Product.all)
-		# #=> {"Lego"=>3, "Fisher-Price"=>2, "Nintendo"=>1, "Crayola"=>2, "Hasbro"=>2}
+	def count_by_brand(products)
+		brands = {}
+		products.each do |product|
+			brand = product.brand
+			brands[brand] = brands.has_key?(brand) ? brands[brand] + 1 : 1
+		end
+		brands
 	end
 
-	def count_by_name
-		# count_by_name should accept an array of Product objects and return a hash with inventory counts, organized by product name.
-
-		# Analyzable::count_by_name(Product.all)
-		# #=> {"Sleek Linen Watch"=>2,
-		# "Heavy Duty Iron Bottle"=>5,
-		# "Lightweight Paper Table"=>1,
-		# "Heavy Duty Wool Shirt"=>1,
-		# Enormous Paper Computer"=>1}
+	def count_by_name(input_products)
+		products = {}
+		input_products.each do |product|
+			product_name = product.name
+			products[product_name] = products.has_key?(product_name) ? products[product_name] + 1 : 1
+		end
+		products
 	end
 
-	def average_price
-		# average_price should accept an array of Product objects and return the average price.
-		# (To find the average price: add up the prices and divide by the number of prices you added together.)
-
-		# Analyzable::average_price(Product.all)
-		# #=> 51.44
+	def average_price(products)
+		prices = []
+		products.each {|product| prices.push(product.price)}
+		sum_price = prices.inject { |result, element| result.to_f + element.to_f }
+		(sum_price/products.length).round(2)
 	end
 
-	def print_report
-		# print_report should accept an array of Product objects and return a summary inventory report containing:
-		# average price, counts by brand, and counts by product name.
+	def print_report(products)
+		output = "Average Price: "
+		output += average_price(products).to_s
+		counted_brands = count_by_brand(products)
+		counted_products = count_by_name(products)
 
-		# Analyzable::print_report(Product.all)
-		# #=> Average Price: $51.6
-		# Inventory by Brand:
-		#   - Hasbro: 5
-		#   - Fisher-Price: 1
-		#   - Crayola: 2
-		#   - Lego: 2
-		# Inventory by Name:
-		#   - Incredible Copper Bag: 3
-		#   - Synergistic Rubber Car: 2
-		#   - Aerodynamic Marble Computer: 3
-		#   - Synergistic Wooden Chair: 2
+		output += "\nInventory by Brand:"
+		counted_brands.each {|key, value| output += "\n\t- " + key.to_s + ": " + value.to_s}
+		output += "\nInventory by Name:"
+		counted_products.each {|key, value| output += "\n\t- " + key.to_s + ": " + value.to_s}
+		output
 	end
 end
