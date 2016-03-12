@@ -10,10 +10,6 @@ require 'faker'
 # database
 
 def db_seed
-  #brands = ["Crayola", "Lego", "Nintendo", "Fisher-Price", "Hasbro"]
-  #product_names = ["crayons", "house", "video game", "kitchen", "toy car"]
-  #prices = ["2.00", "14.50", "2.10", "99.99", "19.99"]
-
   data_path = File.dirname(__FILE__) + "/../data/data.csv"
 
   products = []

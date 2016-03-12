@@ -73,12 +73,18 @@ class Udacidata
   def self.where(opts={})
     objects = self.all
     found_objects = []
-    if opts[:brand]
-      objects.each {|object| found_objects.push(object) if object.brand.to_s == opts[:brand]}
-    elsif opts[:name]
-      objects.each {|object| found_objects.push(object) if object.name.to_s == opts[:name]}
+    opts.each do |key, value|
+      found_objects = objects.select { |object| object.send(key) == value }
     end
-    return found_objects
+    found_objects
+    #objects = self.all
+    #found_objects = []
+    #if opts[:brand]
+    #  objects.each {|object| found_objects.push(object) if object.brand.to_s == opts[:brand]}
+    #elsif opts[:name]
+    #  objects.each {|object| found_objects.push(object) if object.name.to_s == opts[:name]}
+    #end
+    #return found_objects
   end
 
   def update(opts={})
